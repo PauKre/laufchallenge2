@@ -1,7 +1,7 @@
 package com.example.application.views.table;
 
 import com.example.application.data.entity.Run;
-import com.example.application.data.service.SamplePersonService;
+import com.example.application.data.service.SampleRunService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
@@ -19,6 +19,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
@@ -41,13 +42,10 @@ public class TableView extends Div implements BeforeEnterObserver {
 
     private Grid<Run> grid = new Grid<>(Run.class, false);
 
-    private TextField firstName;
-    private TextField lastName;
-    private TextField email;
-    private TextField phone;
-    private DatePicker dateOfBirth;
-    private TextField occupation;
-    private Checkbox important;
+    private TextField name;
+    private NumberField distance;
+    private NumberField time;
+    private DatePicker date;
 
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
@@ -56,10 +54,10 @@ public class TableView extends Div implements BeforeEnterObserver {
 
     private Run samplePerson;
 
-    private SamplePersonService samplePersonService;
+    private SampleRunService sampleRunService;
 
-    public TableView(@Autowired SamplePersonService samplePersonService) {
-        this.samplePersonService = samplePersonService;
+    public TableView(@Autowired SampleRunService sampleRunService) {
+        this.sampleRunService = sampleRunService;
         addClassNames("table-view", "flex", "flex-col", "h-full");
         // Create UI
         SplitLayout splitLayout = new SplitLayout();
@@ -71,18 +69,12 @@ public class TableView extends Div implements BeforeEnterObserver {
         add(splitLayout);
 
         // Configure Grid
-        grid.addColumn("firstName").setAutoWidth(true);
-        grid.addColumn("lastName").setAutoWidth(true);
-        grid.addColumn("email").setAutoWidth(true);
-        grid.addColumn("phone").setAutoWidth(true);
-        grid.addColumn("dateOfBirth").setAutoWidth(true);
-        grid.addColumn("occupation").setAutoWidth(true);
-        TemplateRenderer<Run> importantRenderer = TemplateRenderer.<Run>of(
-                "<iron-icon hidden='[[!item.important]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.important]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
-                .withProperty("important", Run::isImportant);
-        grid.addColumn(importantRenderer).setHeader("Important").setAutoWidth(true);
+        grid.addColumn("name").setAutoWidth(true);
+        grid.addColumn("distance").setAutoWidth(true);
+        grid.addColumn("time").setAutoWidth(true);
+        grid.addColumn("date").setHeader("Datum").setAutoWidth(true);
 
-        grid.setDataProvider(new CrudServiceDataProvider<>(samplePersonService));
+        grid.setDataProvider(new CrudServiceDataProvider<>(sampleRunService));
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
@@ -115,7 +107,7 @@ public class TableView extends Div implements BeforeEnterObserver {
                 }
                 binder.writeBean(this.samplePerson);
 
-                samplePersonService.update(this.samplePerson);
+                sampleRunService.update(this.samplePerson);
                 clearForm();
                 refreshGrid();
                 Notification.show("SamplePerson details stored.");
@@ -131,7 +123,7 @@ public class TableView extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<Integer> samplePersonId = event.getRouteParameters().getInteger(SAMPLEPERSON_ID);
         if (samplePersonId.isPresent()) {
-            Optional<Run> samplePersonFromBackend = samplePersonService.get(samplePersonId.get());
+            Optional<Run> samplePersonFromBackend = sampleRunService.get(samplePersonId.get());
             if (samplePersonFromBackend.isPresent()) {
                 populateForm(samplePersonFromBackend.get());
             } else {
@@ -156,15 +148,11 @@ public class TableView extends Div implements BeforeEnterObserver {
         editorLayoutDiv.add(editorDiv);
 
         FormLayout formLayout = new FormLayout();
-        firstName = new TextField("First Name");
-        lastName = new TextField("Last Name");
-        email = new TextField("Email");
-        phone = new TextField("Phone");
-        dateOfBirth = new DatePicker("Date Of Birth");
-        occupation = new TextField("Occupation");
-        important = new Checkbox("Important");
-        important.getStyle().set("padding-top", "var(--lumo-space-m)");
-        Component[] fields = new Component[]{firstName, lastName, email, phone, dateOfBirth, occupation, important};
+        name = new TextField("Name");
+        distance = new NumberField("Distanz");
+        time = new NumberField("Zeit");
+        date = new DatePicker("Datum");
+        Component[] fields = new Component[]{name, distance, time, date};
 
         for (Component field : fields) {
             ((HasStyle) field).addClassName("full-width");

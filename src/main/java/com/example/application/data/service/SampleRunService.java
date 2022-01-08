@@ -6,16 +6,16 @@ import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 @Service
-public class SamplePersonService extends CrudService<Run, Integer> {
+public class SampleRunService extends CrudService<Run, Integer> {
 
-    private SamplePersonRepository repository;
+    private SampleRunRepository repository;
 
-    public SamplePersonService(@Autowired SamplePersonRepository repository) {
+    public SampleRunService(@Autowired SampleRunRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    protected SamplePersonRepository getRepository() {
+    protected SampleRunRepository getRepository() {
         return repository;
     }
 

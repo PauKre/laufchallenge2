@@ -8,7 +8,6 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -23,12 +22,15 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.data.renderer.TemplateRenderer;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.helpers.CrudServiceDataProvider;
 
@@ -37,8 +39,8 @@ import org.vaadin.artur.helpers.CrudServiceDataProvider;
 @Uses(Icon.class)
 public class TableView extends Div implements BeforeEnterObserver {
 
-    private final String SAMPLEPERSON_ID = "samplePersonID";
-    private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "table/%d/edit";
+    private final String RUN_ID = "samplePersonID";
+    private final String RUN_EDIT_ROUTE_TEMPLATE = "table/%d/edit";
 
     private Grid<Run> grid = new Grid<>(Run.class, false);
 
@@ -47,12 +49,12 @@ public class TableView extends Div implements BeforeEnterObserver {
     private NumberField time;
     private DatePicker date;
 
-    private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
+    private Button cancel = new Button("Abbrechen");
+    private Button save = new Button("Speichern");
 
     private BeanValidationBinder<Run> binder;
 
-    private Run samplePerson;
+    private Run run;
 
     private SampleRunService sampleRunService;
 
@@ -70,8 +72,8 @@ public class TableView extends Div implements BeforeEnterObserver {
 
         // Configure Grid
         grid.addColumn("name").setAutoWidth(true);
-        grid.addColumn("distance").setAutoWidth(true);
-        grid.addColumn("time").setAutoWidth(true);
+        grid.addColumn("distance").setHeader("Strecke").setAutoWidth(true);
+        grid.addColumn("time").setHeader("Zeit").setAutoWidth(true);
         grid.addColumn("date").setHeader("Datum").setAutoWidth(true);
 
         grid.setDataProvider(new CrudServiceDataProvider<>(sampleRunService));
@@ -81,7 +83,7 @@ public class TableView extends Div implements BeforeEnterObserver {
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
             if (event.getValue() != null) {
-                UI.getCurrent().navigate(String.format(SAMPLEPERSON_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
+                UI.getCurrent().navigate(String.format(RUN_EDIT_ROUTE_TEMPLATE, event.getValue().getId()));
             } else {
                 clearForm();
                 UI.getCurrent().navigate(TableView.class);
@@ -98,18 +100,20 @@ public class TableView extends Div implements BeforeEnterObserver {
         cancel.addClickListener(e -> {
             clearForm();
             refreshGrid();
+            date.setValue(LocalDate.now());
         });
 
         save.addClickListener(e -> {
             try {
-                if (this.samplePerson == null) {
-                    this.samplePerson = new Run();
+                if (this.run == null) {
+                    this.run = new Run();
                 }
-                binder.writeBean(this.samplePerson);
+                binder.writeBean(this.run);
 
-                sampleRunService.update(this.samplePerson);
+                sampleRunService.update(this.run);
                 clearForm();
                 refreshGrid();
+                date.setValue(LocalDate.now());
                 Notification.show("SamplePerson details stored.");
                 UI.getCurrent().navigate(TableView.class);
             } catch (ValidationException validationException) {
@@ -121,7 +125,7 @@ public class TableView extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        Optional<Integer> samplePersonId = event.getRouteParameters().getInteger(SAMPLEPERSON_ID);
+        Optional<Integer> samplePersonId = event.getRouteParameters().getInteger(RUN_ID);
         if (samplePersonId.isPresent()) {
             Optional<Run> samplePersonFromBackend = sampleRunService.get(samplePersonId.get());
             if (samplePersonFromBackend.isPresent()) {
@@ -152,6 +156,8 @@ public class TableView extends Div implements BeforeEnterObserver {
         distance = new NumberField("Distanz");
         time = new NumberField("Zeit");
         date = new DatePicker("Datum");
+        date.setValue(LocalDate.now());
+        date.setLocale(Locale.GERMANY);
         Component[] fields = new Component[]{name, distance, time, date};
 
         for (Component field : fields) {
@@ -192,8 +198,8 @@ public class TableView extends Div implements BeforeEnterObserver {
     }
 
     private void populateForm(Run value) {
-        this.samplePerson = value;
-        binder.readBean(this.samplePerson);
+        this.run = value;
+        binder.readBean(this.run);
 
     }
 }

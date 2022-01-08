@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import javax.persistence.Entity;
 
 @Entity
-public class SamplePerson extends AbstractEntity {
+public class Run extends AbstractEntity {
 
     private String firstName;
     private String lastName;

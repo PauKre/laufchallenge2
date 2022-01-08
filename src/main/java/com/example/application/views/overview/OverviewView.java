@@ -2,7 +2,6 @@ package com.example.application.views.overview;
 
 
 import com.example.application.views.MainLayout;
-import com.example.application.views.overview.ServiceHealth.Status;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.board.Board;
 import com.vaadin.flow.component.charts.Chart;
@@ -33,10 +32,10 @@ public class OverviewView extends Main {
         addClassName("overview-view");
 
         Board board = new Board();
-        board.addRow(createHighlight("Current users", "745", 33.7), createHighlight("View events", "54.6k", -112.45),
-                createHighlight("Conversion rate", "18%", 3.9), createHighlight("Custom metric", "-123.45", 0.0));
+        board.addRow(createHighlight("Aktueller Kilometerstand", "0", 0.00), createHighlight("Anzahl Läufe", "0", 1.0),
+                createHighlight("Letzter Lauf", "Heinz Dieter", 7.9));
         board.addRow(createViewEvents());
-        board.addRow(createServiceHealth(), createResponseTimes());
+        board.addRow(createRunnerDetails(), createRunnerPortions());
         add(board);
     }
 
@@ -77,11 +76,11 @@ public class OverviewView extends Main {
     private Component createViewEvents() {
         // Header
         Select year = new Select();
-        year.setItems("2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021");
-        year.setValue("2021");
+        year.setItems("insgesamt", "Felix", "Timon", "Stefan", "Axel");
+        year.setValue("insgesamt");
         year.setWidth("100px");
 
-        HorizontalLayout header = createHeader("View events", "Cumulative (city/month)");
+        HorizontalLayout header = createHeader("Gelaufene Strecke", "Kumulative");
         header.add(year);
 
         // Chart
@@ -89,19 +88,16 @@ public class OverviewView extends Main {
         Configuration conf = chart.getConfiguration();
 
         XAxis xAxis = new XAxis();
-        xAxis.setCategories("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+        xAxis.setCategories("9.1.", "10.1.", "11.1.", "12.1.", "13.1.");
         conf.addxAxis(xAxis);
 
-        conf.getyAxis().setTitle("Values");
+        conf.getyAxis().setTitle("Kilometer");
 
         PlotOptionsArea plotOptions = new PlotOptionsArea();
         plotOptions.setPointPlacement(PointPlacement.ON);
         conf.addPlotOptions(plotOptions);
 
-        conf.addSeries(new ListSeries("Berlin", 189, 191, 191, 196, 201, 203, 209, 212, 229, 242, 244, 247));
-        conf.addSeries(new ListSeries("London", 138, 146, 148, 148, 152, 153, 163, 173, 178, 179, 185, 187));
-        conf.addSeries(new ListSeries("New York", 65, 65, 66, 71, 93, 102, 108, 117, 127, 129, 135, 136));
-        conf.addSeries(new ListSeries("Tokyo", 0, 11, 17, 23, 30, 42, 48, 49, 52, 54, 58, 62));
+        conf.addSeries(new ListSeries("Strecke", 189, 191, 191, 196, 201, 203, 209, 212, 229, 242, 244, 247));
 
         // Add it all together
         VerticalLayout viewEvents = new VerticalLayout(header, chart);
@@ -112,55 +108,52 @@ public class OverviewView extends Main {
         return viewEvents;
     }
 
-    private Component createServiceHealth() {
+    private Component createRunnerDetails() {
         // Header
-        HorizontalLayout header = createHeader("Service health", "Input / output");
+        HorizontalLayout header = createHeader("Interne Rangliste", "Läufe nach Läufer");
 
         // Grid
-        Grid<ServiceHealth> grid = new Grid();
+        Grid<RunnerDetails> grid = new Grid();
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setAllRowsVisible(true);
 
-        grid.addColumn(new ComponentRenderer<>(serviceHealth -> {
+        grid.addColumn(new ComponentRenderer<>(runnerDetails -> {
             Span status = new Span();
-            String statusText = getStatusDisplayName(serviceHealth);
+            String statusText = getStatusDisplayName(runnerDetails);
             status.getElement().setAttribute("aria-label", "Status: " + statusText);
             status.getElement().setAttribute("title", "Status: " + statusText);
-            status.getElement().getThemeList().add(getStatusTheme(serviceHealth));
+            status.getElement().getThemeList().add(getStatusTheme(runnerDetails));
             return status;
         })).setHeader("").setFlexGrow(0).setAutoWidth(true);
-        grid.addColumn(ServiceHealth::getCity).setHeader("City").setFlexGrow(1);
-        grid.addColumn(ServiceHealth::getInput).setHeader("Input").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
-        grid.addColumn(ServiceHealth::getOutput).setHeader("Output").setAutoWidth(true)
+        grid.addColumn(RunnerDetails::getRunnerName).setHeader("Läufer").setFlexGrow(1);
+        grid.addColumn(RunnerDetails::getDistance).setHeader("Gesamtrecke").setAutoWidth(true).setTextAlign(ColumnTextAlign.END);
+        grid.addColumn(RunnerDetails::getNumberOfRuns).setHeader("Anzahl Läufe").setAutoWidth(true)
                 .setTextAlign(ColumnTextAlign.END);
 
-        grid.setItems(new ServiceHealth(Status.EXCELLENT, "Münster", 324, 1540),
-                new ServiceHealth(Status.OK, "Cluj-Napoca", 311, 1320),
-                new ServiceHealth(Status.FAILING, "Ciudad Victoria", 300, 1219));
+        grid.setItems(new RunnerDetails( "Felix", 20, 3),
+                new RunnerDetails("Timon", 31, 5),
+                new RunnerDetails("Stefan", 15, 1));
 
         // Add it all together
-        VerticalLayout serviceHealth = new VerticalLayout(header, grid);
-        serviceHealth.addClassName("p-l");
-        serviceHealth.setPadding(false);
-        serviceHealth.setSpacing(false);
-        serviceHealth.getElement().getThemeList().add("spacing-l");
-        return serviceHealth;
+        VerticalLayout runnerDetails = new VerticalLayout(header, grid);
+        runnerDetails.addClassName("p-l");
+        runnerDetails.setPadding(false);
+        runnerDetails.setSpacing(false);
+        runnerDetails.getElement().getThemeList().add("spacing-l");
+        return runnerDetails;
     }
 
-    private Component createResponseTimes() {
-        HorizontalLayout header = createHeader("Response times", "Average across all systems");
+    private Component createRunnerPortions() {
+        HorizontalLayout header = createHeader("Anteil pro Läufer", "");
 
         // Chart
         Chart chart = new Chart(ChartType.PIE);
         Configuration conf = chart.getConfiguration();
 
         DataSeries series = new DataSeries();
-        series.add(new DataSeriesItem("System 1", 12.5));
-        series.add(new DataSeriesItem("System 2", 12.5));
-        series.add(new DataSeriesItem("System 3", 12.5));
-        series.add(new DataSeriesItem("System 4", 12.5));
-        series.add(new DataSeriesItem("System 5", 12.5));
-        series.add(new DataSeriesItem("System 6", 12.5));
+        series.add(new DataSeriesItem("Felix", 20));
+        series.add(new DataSeriesItem("Timon", 31));
+        series.add(new DataSeriesItem("Stefan", 15));
         conf.addSeries(series);
 
         // Add it all together
@@ -190,28 +183,21 @@ public class OverviewView extends Main {
         return header;
     }
 
-    private String getStatusDisplayName(ServiceHealth serviceHealth) {
-        Status status = serviceHealth.getStatus();
-        if (status == Status.OK) {
-            return "Ok";
-        } else if (status == Status.FAILING) {
-            return "Failing";
-        } else if (status == Status.EXCELLENT) {
-            return "Excellent";
-        } else {
-            return status.toString();
-        }
+    private String getStatusDisplayName(RunnerDetails runnerDetails) {
+        return "Test";
     }
 
-    private String getStatusTheme(ServiceHealth serviceHealth) {
-        Status status = serviceHealth.getStatus();
-        String theme = "badge primary small";
-        if (status == Status.EXCELLENT) {
-            theme += " success";
-        } else if (status == Status.FAILING) {
-            theme += " error";
-        }
-        return theme;
+    private String getStatusTheme(RunnerDetails serviceHealth) {
+        return "badge primary small";
+
+        //        Status status = serviceHealth.getStatus();
+//        String theme = "badge primary small";
+//        if (status == Status.EXCELLENT) {
+//            theme += " success";
+//        } else if (status == Status.FAILING) {
+//            theme += " error";
+//        }
+//        return theme;
     }
 
 }

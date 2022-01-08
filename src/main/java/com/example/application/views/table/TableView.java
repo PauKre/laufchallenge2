@@ -51,6 +51,7 @@ public class TableView extends Div implements BeforeEnterObserver {
 
     private Button cancel = new Button("Abbrechen");
     private Button save = new Button("Speichern");
+    private Button delete = new Button("Löschen");
 
     private BeanValidationBinder<Run> binder;
 
@@ -98,6 +99,12 @@ public class TableView extends Div implements BeforeEnterObserver {
         binder.bindInstanceFields(this);
 
         cancel.addClickListener(e -> {
+            clearForm();
+            refreshGrid();
+            date.setValue(LocalDate.now());
+        });
+
+        delete.addClickListener(e -> {
             clearForm();
             refreshGrid();
             date.setValue(LocalDate.now());
@@ -176,7 +183,8 @@ public class TableView extends Div implements BeforeEnterObserver {
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        delete.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        buttonLayout.add(save, cancel, delete);
         editorLayoutDiv.add(buttonLayout);
     }
 

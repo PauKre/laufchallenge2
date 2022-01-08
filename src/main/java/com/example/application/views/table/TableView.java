@@ -1,6 +1,6 @@
 package com.example.application.views.table;
 
-import com.example.application.data.entity.SamplePerson;
+import com.example.application.data.entity.Run;
 import com.example.application.data.service.SamplePersonService;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -39,7 +39,7 @@ public class TableView extends Div implements BeforeEnterObserver {
     private final String SAMPLEPERSON_ID = "samplePersonID";
     private final String SAMPLEPERSON_EDIT_ROUTE_TEMPLATE = "table/%d/edit";
 
-    private Grid<SamplePerson> grid = new Grid<>(SamplePerson.class, false);
+    private Grid<Run> grid = new Grid<>(Run.class, false);
 
     private TextField firstName;
     private TextField lastName;
@@ -52,9 +52,9 @@ public class TableView extends Div implements BeforeEnterObserver {
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
 
-    private BeanValidationBinder<SamplePerson> binder;
+    private BeanValidationBinder<Run> binder;
 
-    private SamplePerson samplePerson;
+    private Run samplePerson;
 
     private SamplePersonService samplePersonService;
 
@@ -77,9 +77,9 @@ public class TableView extends Div implements BeforeEnterObserver {
         grid.addColumn("phone").setAutoWidth(true);
         grid.addColumn("dateOfBirth").setAutoWidth(true);
         grid.addColumn("occupation").setAutoWidth(true);
-        TemplateRenderer<SamplePerson> importantRenderer = TemplateRenderer.<SamplePerson>of(
+        TemplateRenderer<Run> importantRenderer = TemplateRenderer.<Run>of(
                 "<iron-icon hidden='[[!item.important]]' icon='vaadin:check' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-primary-text-color);'></iron-icon><iron-icon hidden='[[item.important]]' icon='vaadin:minus' style='width: var(--lumo-icon-size-s); height: var(--lumo-icon-size-s); color: var(--lumo-disabled-text-color);'></iron-icon>")
-                .withProperty("important", SamplePerson::isImportant);
+                .withProperty("important", Run::isImportant);
         grid.addColumn(importantRenderer).setHeader("Important").setAutoWidth(true);
 
         grid.setDataProvider(new CrudServiceDataProvider<>(samplePersonService));
@@ -97,7 +97,7 @@ public class TableView extends Div implements BeforeEnterObserver {
         });
 
         // Configure Form
-        binder = new BeanValidationBinder<>(SamplePerson.class);
+        binder = new BeanValidationBinder<>(Run.class);
 
         // Bind fields. This where you'd define e.g. validation rules
 
@@ -111,7 +111,7 @@ public class TableView extends Div implements BeforeEnterObserver {
         save.addClickListener(e -> {
             try {
                 if (this.samplePerson == null) {
-                    this.samplePerson = new SamplePerson();
+                    this.samplePerson = new Run();
                 }
                 binder.writeBean(this.samplePerson);
 
@@ -131,7 +131,7 @@ public class TableView extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent event) {
         Optional<Integer> samplePersonId = event.getRouteParameters().getInteger(SAMPLEPERSON_ID);
         if (samplePersonId.isPresent()) {
-            Optional<SamplePerson> samplePersonFromBackend = samplePersonService.get(samplePersonId.get());
+            Optional<Run> samplePersonFromBackend = samplePersonService.get(samplePersonId.get());
             if (samplePersonFromBackend.isPresent()) {
                 populateForm(samplePersonFromBackend.get());
             } else {
@@ -203,7 +203,7 @@ public class TableView extends Div implements BeforeEnterObserver {
         populateForm(null);
     }
 
-    private void populateForm(SamplePerson value) {
+    private void populateForm(Run value) {
         this.samplePerson = value;
         binder.readBean(this.samplePerson);
 

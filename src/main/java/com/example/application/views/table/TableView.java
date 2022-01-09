@@ -1,5 +1,8 @@
 package com.example.application.views.table;
 
+import com.example.application.data.FirebaseDataProvider;
+import com.example.application.data.db.Firebase;
+import com.example.application.data.db.RunDB;
 import com.example.application.data.entity.Run;
 import com.example.application.data.service.SampleRunService;
 import com.example.application.views.MainLayout;
@@ -27,6 +30,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
@@ -42,7 +46,7 @@ public class TableView extends Div implements BeforeEnterObserver {
     private final String RUN_ID = "samplePersonID";
     private final String RUN_EDIT_ROUTE_TEMPLATE = "table/%d/edit";
 
-    private Grid<Run> grid = new Grid<>(Run.class, false);
+    private Grid<Run> grid = new Grid<>(Run.class);
 
     private TextField name;
     private NumberField distance;
@@ -58,8 +62,17 @@ public class TableView extends Div implements BeforeEnterObserver {
     private Run run;
 
     private SampleRunService sampleRunService;
+    private FirebaseDataProvider<Run> dataProvider;
 
     public TableView(@Autowired SampleRunService sampleRunService) {
+        try {
+            Firebase.setup();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Unable to setup Firebase connection. See the log for details");
+        }
+        dataProvider = new FirebaseDataProvider<>(Run.class, RunDB.getRunsDb());
+        grid.setDataProvider(dataProvider);
         this.sampleRunService = sampleRunService;
         addClassNames("table-view", "flex", "flex-col", "h-full");
         // Create UI
@@ -71,13 +84,24 @@ public class TableView extends Div implements BeforeEnterObserver {
 
         add(splitLayout);
 
-        // Configure Grid
-        grid.addColumn("name").setAutoWidth(true);
-        grid.addColumn("distance").setHeader("Strecke").setAutoWidth(true);
-        grid.addColumn("time").setHeader("Zeit").setAutoWidth(true);
-        grid.addColumn("date").setHeader("Datum").setAutoWidth(true);
+        grid.removeColumn(grid.getColumnByKey("key"));
+        grid.removeColumn(grid.getColumnByKey("id"));
+        grid.setColumnOrder(
+                grid.getColumnByKey("name"),
+                grid.getColumnByKey("distance"),
+                grid.getColumnByKey("time"),
+                grid.getColumnByKey("date")
+        );
+        grid.getColumnByKey("distance").setHeader("Distanz");
+        grid.getColumnByKey("time").setHeader("Zeit");
+        grid.getColumnByKey("date").setHeader("Datum");
 
-        grid.setDataProvider(new CrudServiceDataProvider<>(sampleRunService));
+        // Configure Grid
+//        grid.addColumn("name").setAutoWidth(true);
+//        grid.addColumn("distance").setHeader("Strecke").setAutoWidth(true);
+//        grid.addColumn("time").setHeader("Zeit").setAutoWidth(true);
+//        grid.addColumn("date").setHeader("Datum").setAutoWidth(true);
+
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 

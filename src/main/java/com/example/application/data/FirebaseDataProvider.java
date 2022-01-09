@@ -1,14 +1,15 @@
 package com.example.application.data;
 
+
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.vaadin.data.provider.AbstractDataProvider;
-import com.vaadin.data.provider.DataProviderListener;
-import com.vaadin.data.provider.Query;
-import com.vaadin.server.SerializablePredicate;
-import com.vaadin.shared.Registration;
+import com.vaadin.flow.data.provider.AbstractDataProvider;
+import com.vaadin.flow.data.provider.DataProviderListener;
+import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.shared.Registration;
 
 import java.util.LinkedHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,10 +33,8 @@ public class FirebaseDataProvider<T extends HasKey>
      * Constructs a new Firebase data provider connected to the given database
      * reference.
      *
-     * @param type
-     *            the entity type to use for items
-     * @param databaseReference
-     *            the reference containing the child nodes to include
+     * @param type              the entity type to use for items
+     * @param databaseReference the reference containing the child nodes to include
      */
     public FirebaseDataProvider(Class<T> type,
                                 DatabaseReference databaseReference) {
@@ -98,7 +97,7 @@ public class FirebaseDataProvider<T extends HasKey>
 
     @Override
     public void onChildChanged(DataSnapshot snapshot,
-            String previousChildName) {
+                               String previousChildName) {
         T updated = snapshot.getValue(type);
         String key = snapshot.getKey();
         updated.setKey(key);

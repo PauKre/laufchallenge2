@@ -96,12 +96,6 @@ public class TableView extends Div implements BeforeEnterObserver {
         grid.getColumnByKey("time").setHeader("Zeit");
         grid.getColumnByKey("date").setHeader("Datum");
 
-        // Configure Grid
-//        grid.addColumn("name").setAutoWidth(true);
-//        grid.addColumn("distance").setHeader("Strecke").setAutoWidth(true);
-//        grid.addColumn("time").setHeader("Zeit").setAutoWidth(true);
-//        grid.addColumn("date").setHeader("Datum").setAutoWidth(true);
-
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
@@ -118,6 +112,7 @@ public class TableView extends Div implements BeforeEnterObserver {
         // Configure Form
         binder = new BeanValidationBinder<>(Run.class);
 
+//        binder.forField(date).withConverter(localDate -> localDate.toEpochDay(), LocalDate.ofEpochDay(localDate))
         // Bind fields. This where you'd define e.g. validation rules
 
         binder.bindInstanceFields(this);
@@ -136,12 +131,21 @@ public class TableView extends Div implements BeforeEnterObserver {
 
         save.addClickListener(e -> {
             try {
+                boolean isNewRun = false;
                 if (this.run == null) {
                     this.run = new Run();
+                    isNewRun = true;
                 }
                 binder.writeBean(this.run);
 
                 sampleRunService.update(this.run);
+                if (isNewRun) {
+                    RunDB.add(run);
+                } else {
+                    RunDB.update(run.getKey(), run);
+                }
+
+
                 clearForm();
                 refreshGrid();
                 date.setValue(LocalDate.now());

@@ -3,8 +3,10 @@ package com.example.application.data.entity;
 import com.example.application.data.AbstractEntity;
 import com.example.application.data.HasKey;
 import com.google.firebase.database.IgnoreExtraProperties;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import javax.persistence.Entity;
 
 @Entity
@@ -15,7 +17,7 @@ public class Run extends AbstractEntity implements HasKey {
     private String name;
     private double distance;
     private double time;
-    private LocalDate date;
+    private Long date;
 
     public Run() {
     }
@@ -25,7 +27,7 @@ public class Run extends AbstractEntity implements HasKey {
         this.name = name;
         this.distance = distance;
         this.time = time;
-        this.date = date;
+        this.date = date.toEpochDay();
     }
 
     public String getName() {
@@ -52,12 +54,12 @@ public class Run extends AbstractEntity implements HasKey {
         this.time = timeInMinutes;
     }
 
-    public LocalDate getDate() {
+    public Long getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setDate(Long dateAsLong) {
+        this.date = dateAsLong;
     }
 
     @Override

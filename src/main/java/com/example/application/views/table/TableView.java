@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
 
+import com.vaadin.ui.DateField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.helpers.CrudServiceDataProvider;
 
@@ -94,7 +95,8 @@ public class TableView extends Div implements BeforeEnterObserver {
         );
         grid.getColumnByKey("distance").setHeader("Distanz");
         grid.getColumnByKey("time").setHeader("Zeit");
-        grid.getColumnByKey("date").setHeader("Datum");
+        grid.getColumnByKey("date")
+                .setHeader("Datum");
 
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
@@ -112,7 +114,9 @@ public class TableView extends Div implements BeforeEnterObserver {
         // Configure Form
         binder = new BeanValidationBinder<>(Run.class);
 
-//        binder.forField(date).withConverter(localDate -> localDate.toEpochDay(), LocalDate.ofEpochDay(localDate))
+        binder.forField(date)
+                .withConverter(new LocalDateLongConverter())
+                .bind(Run::getDate, Run::setDate);
         // Bind fields. This where you'd define e.g. validation rules
 
         binder.bindInstanceFields(this);

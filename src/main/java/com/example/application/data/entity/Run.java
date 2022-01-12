@@ -2,6 +2,7 @@ package com.example.application.data.entity;
 
 import com.example.application.data.AbstractEntity;
 import com.example.application.data.HasKey;
+import com.example.application.views.table.LocalDateLongConverter;
 import com.google.firebase.database.IgnoreExtraProperties;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -17,17 +18,17 @@ public class Run extends AbstractEntity implements HasKey {
     private String name;
     private double distance;
     private double time;
-    private Long date;
+    private long date;
 
     public Run() {
     }
 
-    public Run(String name, double distance, double time, LocalDate date) {
+    public Run(String name, double distance, double time, long date) {
         super();
         this.name = name;
         this.distance = distance;
         this.time = time;
-        this.date = date.toEpochDay();
+        this.date = date;
     }
 
     public String getName() {
@@ -74,6 +75,6 @@ public class Run extends AbstractEntity implements HasKey {
 
     @Override
     public String toString() {
-        return "Run[name: "+ name + " distance: " + distance + " time: " + time + " date: " + date.toString() + "]";
+        return "Run[name: "+ name + " distance: " + distance + " time: " + time + " date: " + LocalDate.ofEpochDay(date).toString() + "]";
     }
 }

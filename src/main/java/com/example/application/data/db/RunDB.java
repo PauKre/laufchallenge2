@@ -3,6 +3,9 @@ package com.example.application.data.db;
 import com.example.application.data.entity.Run;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.internal.NonNull;
+import com.google.firebase.tasks.OnFailureListener;
+import com.google.firebase.tasks.OnSuccessListener;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -21,12 +24,26 @@ public class RunDB {
             return;
         }
 
-        add(new Run("Paul", 34.4, 120, LocalDate.now()));
-        add(new Run("Basti", 20.4, 10, LocalDate.now()));
+        add(new Run("Paul", 34.4, 120, LocalDate.now().toEpochDay()));
+        add(new Run("Basti", 20.4, 10, LocalDate.now().toEpochDay()));
     }
 
     public static void add(Run run) {
-        getRunsDb().push().setValueAsync(run);
+        getRunsDb().push().setValue(run)
+                .addOnSuccessListener(aVoid -> {
+                    System.out.println("Stored Run succesfully");
+                    // Write was successful!
+                    // ...
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Error while storing run:");
+                        e.printStackTrace();
+                        // Write failed
+                        // ...
+                    }
+                });;
     }
 
     protected static Logger getLogger() {

@@ -135,15 +135,13 @@ public class TableView extends Div implements BeforeEnterObserver {
 
         save.addClickListener(e -> {
             try {
-                boolean isNewRun = false;
                 if (this.run == null) {
                     this.run = new Run();
-                    isNewRun = true;
                 }
                 binder.writeBean(this.run);
 
                 sampleRunService.update(this.run);
-                if (isNewRun) {
+                if (run.getKey() == null) {
                     RunDB.add(run);
                 } else {
                     RunDB.update(run.getKey(), run);
